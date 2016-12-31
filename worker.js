@@ -143,7 +143,6 @@ FakeLoaderContext.prototype.execLoaderAsPromise = function(source, sourceMap) {
   try {
     result = loaderFunc.call(this, source, sourceMap);
   } catch (err) {
-    console.error(err);
     return Promise.reject(err);
   }
   if (!this[priv].isAsync && result) {

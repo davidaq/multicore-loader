@@ -5,9 +5,9 @@ var workerCountLimit = os.cpus().length * 4;
 var workers = {};
 var idleWorkerIds = [];
 var runningLoaders = {};
-setInterval(function() {
-  console.log(runningLoaders);
-}, 5000).unref();
+// setInterval(function() {
+//   console.log(runningLoaders);
+// }, 5000).unref();
 
 module.exports = function(source, sourceMap) {
   var self = this;
@@ -81,7 +81,6 @@ module.exports = function(source, sourceMap) {
             self.addContextDependency(payload.file);
             return Promise.resolve();
           case 'context.emitFile':
-            console.log(payload.content);
             self.emitFile(payload.name, payload.isBuffer ? new Buffer(payload.content, base64) : payload.content, payload.sourceMap);
             return Promise.resolve();
           default:
