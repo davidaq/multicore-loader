@@ -1,30 +1,22 @@
 
+module.exports = warpLoader;
 
-module.exports = function(loaders) {
-  if (typeof loaders === 'string') {
-    loaders = loaders.split('!');
-  } else if (!Array.isArray(loaders)) {
-    throw new Error('loaders definition must be string or array');
+function warpLoader() {
+  var args = arguments;
+  if (typeof arguments[0] === 'string' && typeof arguments[1] === 'number' && Array.isArray(arguments[2])) {
+    args = [arguments[0]];
   }
-  loaders = loaders.map(item => {
-    if (typeof item === 'string') {
-      const parts = item.split('?');
-      return [parts[0], '?' + parts.slice(1).join('?')];
-    } else if (Array.isArray(item)) {
-      const name = item[0];
-      let query = item[1];
-      if (typeof query === 'string') {
-        if (/^\?/.test(query)) {
-          query = '?' + query;
-        }
-      } else if (query) {
-        query = '?' + JSON.stringify(query);
-      } else {
-        query = '?';
-      }
-      return [name, query];
+  return Array.prototype.map.call(args, function(item) {
+    if (typeof item !== 'string') {
+      throw new Error('Loader must be defined as string');
     }
-  });
-  loaders = new Buffer(JSON.stringify(loaders), 'utf-8').toString('base64');
-  return require.resolve('./loader') + '?' + loaders;
+    item = item.split('!');
+    if (item.length > 1) {
+      return warpLoader.apply(this, item);
+    }
+    item = item[0];
+    var parts = item.split('?');
+    var query = new Buffer('?' + parts.slice(1).join('?'), 'utf-8').toString('base64');
+    return require.resolve('./loader') + '?' + parts[0] + '/' + query;
+  }).join('!');
 };
