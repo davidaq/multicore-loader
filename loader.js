@@ -1,7 +1,7 @@
 var childProcess = require('child_process');
 var os = require('os');
 
-var workerCountLimit = os.cpus().length - 1;
+var workerCountLimit = os.cpus().length * 10;
 var workers = {};
 var idleWorkerIds = [];
 
@@ -9,8 +9,8 @@ module.exports = function(source, sourceMap) {
   var self = this;
   var loaders = JSON.parse(new Buffer(self.query, 'base64'));
   self.async();
-
   var context = {
+    options: self.options,
     context: self.context,
     request: self.request,
     resource: self.resource,
@@ -24,7 +24,7 @@ module.exports = function(source, sourceMap) {
         path: item[0],
         query: item[1],
       }
-    });
+    }),
   };
 
   var promise = Promise.resolve();
@@ -94,6 +94,7 @@ function requestWorker() {
           }
           killed = true;
           child.kill();
+          console.log('===== KILL =====');
         }, 2000);
       }
     });
